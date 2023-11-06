@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+echo ciao
 
 # Update package repositories (may vary by distribution)
 if [ -x "$(command -v apt-get)" ]; then
@@ -9,6 +11,8 @@ elif [ -x "$(command -v yum)" ]; then
   sudo yum check-update
 elif [ -x "$(command -v zypper)" ]; then
   sudo zypper refresh
+elif [ -x "$(command -v nix-env)" ]; then
+  sudo nixos-rebuild switch --upgrade
 fi
 
 # Upgrade system packages
@@ -31,6 +35,8 @@ elif [ -x "$(command -v yum)" ]; then
   sudo package-cleanup --leaves
 elif [ -x "$(command -v zypper)" ]; then
   sudo zypper packages --unneeded
+elif [ -x "$(command -v nix-env)" ]; then
+  sudo sudo nix-collect-garbage --delete-older-than 14d
 fi
 
 # Clean package cache
@@ -42,10 +48,12 @@ elif [ -x "$(command -v yum)" ]; then
   sudo yum clean all
 elif [ -x "$(command -v zypper)" ]; then
   sudo zypper clean --all
+elif [ -x "$(command -v nix-env)" ]; then
+  sudo nix-store --gc --delete-older-than 7d
 fi
 
 # Remove old logs (may vary by distribution)
-sudo journalctl --vacuum-time=3d
+sudo journalctl --vacuum-time=2d
 
 # Clean temporary files
 sudo rm -rf /tmp/*
@@ -78,6 +86,5 @@ if [ -x "$(command -v apt-get)" ]; then
 fi
 
 # Print a message
-echo "Aggressive system cleanup and optimization completed."
-
+echo "System cleanup and optimization completed."
 
