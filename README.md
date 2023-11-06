@@ -16,20 +16,20 @@ This is a Bash script to clean up and update your Linux system. It works on vari
 
 ## Usage
 
-1. Clone the repository or download the script to your local machine.
+Clone the repository or download the script to your local machine.
 
 ```shell
 git clone https://github.com/turtlecute33/linux-system-cleaner.git
 ```
-1. Make the script executable if it's not already:
+ Make the script executable if it's not already:
 ```
 chmod +x clean-script.sh
 ```
-1. Run the script with sudo privileges:
+Run the script with sudo privileges:
 ```
 sudo ./clean-script.sh
 ```
-1. The script will automatically detect your Linux distribution and perform the necessary cleanup and updates.
+The script will automatically detect your Linux distribution and perform the necessary cleanup and updates.
 
 ## Customisation
 You can customize the script to suit your specific needs by editing it. Be cautious when modifying the script, especially if you're not familiar with Bash scripting.
