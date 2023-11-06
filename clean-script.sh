@@ -81,5 +81,5 @@ if [ -x "$(command -v apt-get)" ]; then
 fi
 
 # Print a message
-echo "System cleanup and optimization completed."
+echo "System cleanup and update completed."
 
