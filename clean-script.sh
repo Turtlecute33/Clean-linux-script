@@ -47,7 +47,7 @@ elif [ -x "$(command -v yum)" ]; then
 elif [ -x "$(command -v zypper)" ]; then
   sudo zypper clean --all
 elif [ -x "$(command -v nix-env)" ]; then
-  sudo nix-store --gc --delete-older-than 7d
+  sudo nix-store --optimise
 fi
 
 # Remove old logs (may vary by distribution)
@@ -69,9 +69,6 @@ elif [ -x "$(command -v yum)" ]; then
 elif [ -x "$(command -v zypper)" ]; then
   sudo zypper remove-old-kernels --keep 1
 fi
-
-# Clean up unneeded locale files
-localedef --list-archive | grep -v 'en_US\|C' | xargs localedef --delete-from-archive
 
 # Remove old logs in /var/log
 sudo find /var/log -type f -name '*.gz' -exec rm -f {} \;
