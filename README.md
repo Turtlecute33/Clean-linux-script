@@ -1,4 +1,6 @@
-# Linux System Cleaner and Updater
+# Linux System Cleaner and Updater 🧹
+
+![Clean Logo]([https://turtlecute33.github.io/Turtlecute.org/images/tor.png](https://img.itch.zone/aW1nLzQ5NTc4MDMuZ2lm/original/NP6Vjv.gif))
 
 This is a Bash script to clean up and update your Linux system. It works on various Linux distributions, including Debian, Arch, Fedora, and NixOS. The script automates common maintenance tasks to keep your system clean and up to date.
 
