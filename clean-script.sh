@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-echo ciao
-
 # Update package repositories (may vary by distribution)
 if [ -x "$(command -v apt-get)" ]; then
   sudo apt-get update
