@@ -3,11 +3,14 @@ run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push, pull_request]
 jobs:
   Test-script:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - run: sudo apt install flatpak 
       - run: chmod +x clean-script.sh
       - run: sudo ./clean-script.sh
       - run: echo "all good"
-      

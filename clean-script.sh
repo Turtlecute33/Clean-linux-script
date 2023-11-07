@@ -50,6 +50,38 @@ elif [ -x "$(command -v nix-env)" ]; then
   sudo nix-store --optimise
 fi
 
+# Check if Flatpak is installed
+if command -v flatpak &> /dev/null; then
+    echo "Flatpak is installed. Updating and removing unused runtimes and apps..."
+    
+    # Update Flatpak
+    flatpak update
+    
+    # Remove unused runtimes and apps
+    flatpak uninstall --unused
+    
+    echo "Flatpak update and cleanup completed."
+else
+    echo "Flatpak is not installed. Skipping the process."
+fi
+
+# Check if Snap is installed
+if command -v snap &> /dev/null; then
+    echo "Snap is installed. Updating snap packages and cleaning unused ones..."
+    
+    # Update Snap packages
+    sudo snap refresh
+    
+    # Clean unused Snap revisions
+    sudo snap set system refresh.retain=2 # Keep 2 latest revisions
+    sudo snap refresh --amend
+    
+    echo "Snap update and cleanup completed."
+else
+    echo "Snap is not installed. Skipping the process."
+fi
+
+
 # Remove old logs (may vary by distribution)
 sudo journalctl --vacuum-time=2d
 
