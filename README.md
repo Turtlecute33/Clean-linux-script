@@ -10,6 +10,7 @@ This is a Bash script to clean up and update your Linux system. It works on vari
 - Updates package repositories specific to your distribution.
 - Upgrades system packages to the latest versions.
 - Removes orphaned packages.
+- Support and clean also snap & flatpak packages.
 - Cleans package cache.
 - Manages old kernel and logs.
 - Empties the trash, cleans temporary files, and more.
