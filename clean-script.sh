@@ -506,12 +506,17 @@ remove_old_kernels() {
         msg_warn "rpm command not found. Cannot remove kernels."
         return
       fi
+      # rpm reports kernels without the arch suffix (e.g. kernel-6.0.12-100.fc43),
+      # while `uname -r` includes it (6.0.12-100.fc43.x86_64). Strip the arch so
+      # the running kernel is reliably excluded and never removed.
+      local running_kernel_ver="${current_kernel%.*}"
       local kernel_pkgs_to_remove
       kernel_pkgs_to_remove=$(rpm -q kernel kernel-core --queryformat '%{BUILDTIME} %{NAME}-%{VERSION}-%{RELEASE}\n' 2>/dev/null | \
         sort -k1,1n | \
-        grep -vF "${current_kernel}" | \
+        grep -vF "${running_kernel_ver}" | \
         head -n -"${KEEP_KERNELS}" | \
-        cut -d' ' -f2 || true)
+        cut -d' ' -f2 | \
+        grep -vF "${running_kernel_ver}" || true)
 
       if [[ -n "$kernel_pkgs_to_remove" ]]; then
         msg_info "Found old kernels to remove"
@@ -564,7 +569,7 @@ clean_flatpak() {
   local flatpak_cache="/var/tmp/flatpak-cache"
   if [[ -d "$flatpak_cache" ]]; then
     msg_sub "Cleaning Flatpak cache..."
-    safe_delete "$flatpak_cache/*" "Flatpak cache"
+    safe_delete "$flatpak_cache" "Flatpak cache"
   fi
 
   after=$(df / | tail -1 | awk '{print $3}')
@@ -631,6 +636,15 @@ clean_system_logs() {
   run_sudo find /var/log -type f -name "*.[0-9]" -mtime +30 -delete 2>/dev/null || true
   after=$(df /var | tail -1 | awk '{print $3}')
   calculate_freed "$before" "$after"
+
+  # Systemd coredumps (can grow to several GB and are safe to discard)
+  if [[ -d /var/lib/systemd/coredump ]]; then
+    msg_sub "Removing systemd coredumps..."
+    before=$(get_dir_size "/var/lib/systemd/coredump")
+    run_sudo find /var/lib/systemd/coredump -type f -delete 2>/dev/null || true
+    after=$(get_dir_size "/var/lib/systemd/coredump")
+    calculate_freed "$before" "$after"
+  fi
 }
 
 clean_temp_files() {
@@ -936,20 +950,16 @@ main() {
 
   init_backup_list
 
-  # Execute all cleaning tasks
-  update_repos
-  upgrade_packages
-  remove_orphans
-  clean_package_cache
-  remove_old_kernels
-  clean_flatpak
-  clean_snap
-  clean_system_logs
-  clean_temp_files
-  clean_user_cache
-  clean_browsers
-  clean_desktop_environment
-  clean_docker
+  # Execute all cleaning tasks. Each task is isolated so that a failure in one
+  # (e.g. no network during upgrade) won't abort the remaining cleanup.
+  local task
+  for task in \
+    update_repos upgrade_packages remove_orphans clean_package_cache \
+    remove_old_kernels clean_flatpak clean_snap clean_system_logs \
+    clean_temp_files clean_user_cache clean_browsers \
+    clean_desktop_environment clean_docker; do
+    "$task" || msg_warn "Task '${task}' did not complete; continuing with the rest."
+  done
 
   msg "Flushing final filesystem buffers..."
   sync
